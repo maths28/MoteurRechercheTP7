@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -17,12 +18,14 @@ public class DefaultTeam {
 
     public static final int DISTANCE_POINT = 55;
 
+    public static int recNumber = 0;
+
     public ArrayList<Point> calculDominatingSet(ArrayList<Point> points, int edgeThreshold) {
 
         //Creation des listes
         ArrayList<Point> result = null ;
 
-
+        /*
         //random
         //best of ten
         int max = 200 ;
@@ -66,10 +69,74 @@ public class DefaultTeam {
             }
         }
         //System.out.println(result) ;
+        */
+        result = recursiveDominatingSet(points) ;
         return result;
     }
 
-    private List<Point> findAllLinkedPoints(Point point, List<Point> allPoints) {
+    private ArrayList<Point> recursiveDominatingSet(ArrayList<Point> allPoints) {
+        if(allPoints == null){
+            return new ArrayList<Point>() ;
+        }
+        System.out.println("-debut--- recurence numero :" + recNumber) ;
+        recNumber++ ;
+
+        //
+       /* if(recNumber < 100) {
+            System.out.println("taille courante :" + allPoints.size());
+        }*/
+
+
+
+        ArrayList<Point> result = new ArrayList<Point>() ;
+        HashMap<Point, ArrayList> possibleResult = new HashMap<Point, ArrayList>() ;
+
+        List<Point> linked = null ;
+        List<Point> mostLinkedPoints = new ArrayList<Point>() ;
+        int mostLinkedPointNbr = -1 ;
+        for (Point point : allPoints){
+            linked = findAllLinkedPoints(point, allPoints);
+            int nbrlinks = linked.size();
+            if (nbrlinks > mostLinkedPointNbr){
+                mostLinkedPoints = new ArrayList<Point>();
+                mostLinkedPoints.add(point) ;
+                mostLinkedPointNbr = nbrlinks;
+            }
+            else if(nbrlinks == mostLinkedPointNbr) {
+                mostLinkedPoints.add(point) ;
+            }
+        }
+        int stop = 0;
+        int limit = 1 ;
+        for (Point point : mostLinkedPoints){
+            ArrayList<Point> list = (ArrayList<Point>)allPoints.clone() ;
+            list.remove(point);
+            for (Point point2 : findAllLinkedPoints(point, allPoints)){
+                list.remove(point2);
+            }
+            possibleResult.put(point ,recursiveDominatingSet(list)) ;
+            if (stop >= limit){
+                break ;
+            }
+            stop++ ;
+        }
+
+        for(HashMap.Entry<Point, ArrayList> entry : possibleResult.entrySet()) {
+            ArrayList currentResult = entry.getValue();
+            Point point = entry.getKey() ;
+            //System.out.println(currentResult);
+            if (result.size() == 0 || result.size() > currentResult.size()) {
+                result = currentResult;
+                //System.out.println(result);
+                result.add(point) ;
+            }
+        }
+        //System.out.println("---fin--- recurence numero :" + recNumber) ;
+        return result;
+    }
+
+
+        private List<Point> findAllLinkedPoints(Point point, List<Point> allPoints) {
         List<Point> result = new ArrayList<>();
         for (Point p : allPoints) {
             if (!p.equals(point) && p.distance(point) <= DISTANCE_POINT) {
