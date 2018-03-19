@@ -32,7 +32,7 @@ public class DefaultTeam {
     private List<Point> findAllPointsRelied(Point point, List<Point> allPoints) {
         List<Point> result = new ArrayList<>();
         for (Point p : allPoints) {
-            if (!p.equals(point) && p.distance(p) <= DISTANCE_POINT) {
+            if (!p.equals(point) && p.distance(point) <= DISTANCE_POINT) {
                 result.add(p);
             }
         }
