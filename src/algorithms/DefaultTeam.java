@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Random;
 
 public class DefaultTeam {
 
@@ -19,31 +20,52 @@ public class DefaultTeam {
     public ArrayList<Point> calculDominatingSet(ArrayList<Point> points, int edgeThreshold) {
 
         //Creation des listes
-        ArrayList<Point> result = new ArrayList<Point>();
-        ArrayList<Point> pointsLeft = (ArrayList<Point>) points.clone();
-        List<Point> mostLinkedPointList = null ;
-        while(pointsLeft.size() > 0) {
-            System.out.println("----------------"+pointsLeft.size()) ;
-            //trouver le point avec le plus gourmand dans ceux restants
-            Point mostLinkedPoint = null;
-            List<Point> linked = null;
-            int mostLinkedPointNbr = -1;
-            for (Point point : pointsLeft) {
-                linked = findAllLinkedPoints(point, pointsLeft);
-                int nbrlinks = linked.size();
-                if (nbrlinks > mostLinkedPointNbr) {
-                    mostLinkedPoint = point;
-                    mostLinkedPointNbr = nbrlinks;
-                    mostLinkedPointList = linked ;
+        ArrayList<Point> result = null ;
+
+
+        //random
+        //best of ten
+        int max = 200 ;
+        for (int random = 0; random < max; random++){
+            System.out.println("Tour : " + random);
+            //glouton
+            ArrayList<Point> pointsLeft = (ArrayList<Point>) points.clone();
+            List<Point> mostLinkedPointList = null;
+            ArrayList<Point> currentResult = new ArrayList<Point>();
+            while (pointsLeft.size() > 0) {
+                //System.out.println("----------------" + pointsLeft.size());
+                //trouver le point avec le plus gourmand dans ceux restants
+                Point mostLinkedPoint = null;
+                List<Point> linked = null;
+                int mostLinkedPointNbr = -1;
+                for (Point point : pointsLeft) {
+                    linked = findAllLinkedPoints(point, pointsLeft);
+                    int nbrlinks = linked.size();
+                    if (
+                            (nbrlinks > mostLinkedPointNbr)
+                            ||
+                            (nbrlinks == mostLinkedPointNbr && new Random().nextInt(max) < random)
+                    ) {
+                        mostLinkedPoint = point;
+                        mostLinkedPointNbr = nbrlinks;
+                        mostLinkedPointList = linked;
+                    }
+                }
+                //retirer les points de la liste
+                pointsLeft.remove(mostLinkedPoint);
+                currentResult.add(mostLinkedPoint);
+                for (Point point : mostLinkedPointList) {
+                    pointsLeft.remove(point);
                 }
             }
-            //retirer les points de la liste
-            pointsLeft.remove(mostLinkedPoint);
-            result.add(mostLinkedPoint);
-            for (Point point : mostLinkedPointList) {
-                pointsLeft.remove(point);
+
+            //comparaison
+            //System.out.println(currentResult) ;
+            if (result == null || result.size() > currentResult.size()){
+                result = currentResult ;
             }
         }
+        //System.out.println(result) ;
         return result;
     }
 
