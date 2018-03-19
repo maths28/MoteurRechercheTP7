@@ -17,19 +17,37 @@ public class DefaultTeam {
     public static final int DISTANCE_POINT = 55;
 
     public ArrayList<Point> calculDominatingSet(ArrayList<Point> points, int edgeThreshold) {
-        //REMOVE >>>>>
-        ArrayList<Point> result = (ArrayList<Point>) points.clone();
-        for (int i = 0; i < points.size(); i++){
-            result.remove(0);
-        }
-        // if (false) result = readFromFile("output0.points");
-        // else saveToFile("output",result);
-        //<<<<< REMOVE
 
+        //Creation des listes
+        ArrayList<Point> result = new ArrayList<Point>();
+        ArrayList<Point> pointsLeft = (ArrayList<Point>) points.clone();
+        List<Point> mostLinkedPointList = null ;
+        while(pointsLeft.size() > 0) {
+            System.out.println("----------------"+pointsLeft.size()) ;
+            //trouver le point avec le plus gourmand dans ceux restants
+            Point mostLinkedPoint = null;
+            List<Point> linked = null;
+            int mostLinkedPointNbr = -1;
+            for (Point point : pointsLeft) {
+                linked = findAllLinkedPoints(point, pointsLeft);
+                int nbrlinks = linked.size();
+                if (nbrlinks > mostLinkedPointNbr) {
+                    mostLinkedPoint = point;
+                    mostLinkedPointNbr = nbrlinks;
+                    mostLinkedPointList = linked ;
+                }
+            }
+            //retirer les points de la liste
+            pointsLeft.remove(mostLinkedPoint);
+            result.add(mostLinkedPoint);
+            for (Point point : mostLinkedPointList) {
+                pointsLeft.remove(point);
+            }
+        }
         return result;
     }
 
-    private List<Point> findAllPointsRelied(Point point, List<Point> allPoints) {
+    private List<Point> findAllLinkedPoints(Point point, List<Point> allPoints) {
         List<Point> result = new ArrayList<>();
         for (Point p : allPoints) {
             if (!p.equals(point) && p.distance(point) <= DISTANCE_POINT) {
@@ -38,6 +56,10 @@ public class DefaultTeam {
         }
         return result;
 
+    }
+
+    private int countLinks(Point point, List<Point> allPoints) {
+        return findAllLinkedPoints(point, allPoints).size();
     }
 
     //FILE PRINTER
