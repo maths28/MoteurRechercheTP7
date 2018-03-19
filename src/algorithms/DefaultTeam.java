@@ -25,7 +25,7 @@ public class DefaultTeam {
 
         //random
         //best of ten
-        int max = 200 ;
+        int max = 2000000 ;
         for (int random = 0; random < max; random++){
             System.out.println("Tour : " + random);
             //glouton
@@ -38,19 +38,22 @@ public class DefaultTeam {
                 Point mostLinkedPoint = null;
                 List<Point> linked = null;
                 int mostLinkedPointNbr = -1;
-                for (Point point : pointsLeft) {
-                    linked = findAllLinkedPoints(point, pointsLeft);
+//                for (Point point : pointsLeft) {
+                    int randomRange = new Random().nextInt(pointsLeft.size());
+                    Point randomPoint = pointsLeft.get(randomRange);
+                    linked = findAllLinkedPoints(randomPoint, pointsLeft);
                     int nbrlinks = linked.size();
-                    if (
-                            (nbrlinks > mostLinkedPointNbr)
-                            ||
-                            (nbrlinks == mostLinkedPointNbr && new Random().nextInt(max) < random)
-                    ) {
-                        mostLinkedPoint = point;
+//                    if (
+//                            (nbrlinks > mostLinkedPointNbr)
+//                            ||
+//                            (nbrlinks == mostLinkedPointNbr && new Random().nextInt(max) < random)
+//                    ) {
+
+                        mostLinkedPoint = randomPoint;
                         mostLinkedPointNbr = nbrlinks;
                         mostLinkedPointList = linked;
-                    }
-                }
+//                    }
+//                }
                 //retirer les points de la liste
                 pointsLeft.remove(mostLinkedPoint);
                 currentResult.add(mostLinkedPoint);
