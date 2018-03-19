@@ -23,54 +23,89 @@ public class DefaultTeam {
     public ArrayList<Point> calculDominatingSet(ArrayList<Point> points, int edgeThreshold) {
 
         //Creation des listes
-        ArrayList<Point> result = null ;
+        ArrayList<Point> result = new ArrayList<Point>() ;
+        ArrayList<Point> gloutonResult = null ;
+        ArrayList<Point> pointsLeft = (ArrayList<Point>) points.clone();
+        //retirer les minimums
 
-        /*
-        //random
-        //best of ten
-        int max = 200 ;
-        for (int random = 0; random < max; random++){
-            System.out.println("Tour : " + random);
-            //glouton
-            ArrayList<Point> pointsLeft = (ArrayList<Point>) points.clone();
-            List<Point> mostLinkedPointList = null;
-            ArrayList<Point> currentResult = new ArrayList<Point>();
-            while (pointsLeft.size() > 0) {
-                //System.out.println("----------------" + pointsLeft.size());
-                //trouver le point avec le plus gourmand dans ceux restants
-                Point mostLinkedPoint = null;
-                List<Point> linked = null;
-                int mostLinkedPointNbr = -1;
-                for (Point point : pointsLeft) {
-                    linked = findAllLinkedPoints(point, pointsLeft);
-                    int nbrlinks = linked.size();
-                    if (
-                            (nbrlinks > mostLinkedPointNbr)
-                            ||
-                            (nbrlinks == mostLinkedPointNbr && new Random().nextInt(max) < random)
-                    ) {
-                        mostLinkedPoint = point;
-                        mostLinkedPointNbr = nbrlinks;
-                        mostLinkedPointList = linked;
-                    }
-                }
-                //retirer les points de la liste
-                pointsLeft.remove(mostLinkedPoint);
-                currentResult.add(mostLinkedPoint);
-                for (Point point : mostLinkedPointList) {
-                    pointsLeft.remove(point);
+        int remove = 0;
+        while(remove < 2){
+            ArrayList<Point> toRemove = new ArrayList<Point>() ;
+            for (Point point : pointsLeft) {
+                List<Point> linked = findAllLinkedPoints(point, pointsLeft);
+                int nbrlinks = linked.size();
+                if(nbrlinks == 0){
+                    result.add(point) ;
+                    toRemove.add(point);
+
                 }
             }
-
-            //comparaison
-            //System.out.println(currentResult) ;
-            if (result == null || result.size() > currentResult.size()){
-                result = currentResult ;
+            for (Point point : toRemove) {
+                pointsLeft.remove(point);
+            }
+            remove++ ;
+        }
+        ArrayList<Point> toRemove = new ArrayList<Point>() ;
+        for (Point point : pointsLeft) {
+            List<Point> linked = findAllLinkedPoints(point, pointsLeft);
+            int nbrlinks = linked.size();
+            if(nbrlinks == 1){
+                if(!result.contains(linked.get(0))) {
+                    result.add(linked.get(0));
+                    toRemove.add(point);
+                    toRemove.add(linked.get(0));
+                }
             }
         }
-        //System.out.println(result) ;
-        */
-        result = recursiveDominatingSet(points) ;
+        for (Point point : toRemove) {
+            pointsLeft.remove(point);
+        }
+        //glouton
+
+        List<Point> mostLinkedPointList = null;
+        ArrayList<Point> currentResult = new ArrayList<Point>();
+        while (pointsLeft.size() > 0 || result.size() < 75) {
+            //System.out.println("----------------" + pointsLeft.size());
+            //trouver le point avec le plus gourmand dans ceux restants
+            Point mostLinkedPoint = null;
+            List<Point> linked = null;
+            int mostLinkedPointNbr = -1;
+            for (Point point : pointsLeft) {
+                linked = findAllLinkedPoints(point, pointsLeft);
+                int nbrlinks = linked.size();
+                if (
+                        (nbrlinks > mostLinkedPointNbr)
+                        /*||
+                        (nbrlinks == mostLinkedPointNbr && new Random().nextInt(max) < random)*/
+                ) {
+                    mostLinkedPoint = point;
+                    mostLinkedPointNbr = nbrlinks;
+                    mostLinkedPointList = linked;
+                }
+            }
+            //retirer les points de la liste
+            pointsLeft.remove(mostLinkedPoint);
+            currentResult.add(mostLinkedPoint);
+            for (Point point : mostLinkedPointList) {
+                pointsLeft.remove(point);
+            }
+        }
+
+        //comparaison
+        //System.out.println(currentResult) ;
+        if (gloutonResult == null || gloutonResult.size() > currentResult.size()){
+            gloutonResult = currentResult ;
+        }
+
+        for(Point point : gloutonResult){
+            result.add(point);
+        }
+
+        //reccursive
+        ArrayList<Point> resultRecursive = recursiveDominatingSet(pointsLeft) ;
+        for(Point point : resultRecursive){
+            result.add(point);
+        }
         return result;
     }
 
