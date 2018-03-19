@@ -24,47 +24,53 @@ public class DefaultTeam {
 
         //Creation des listes
         ArrayList<Point> result = new ArrayList<Point>() ;
-        ArrayList<Point> gloutonResult = null ;
         ArrayList<Point> pointsLeft = (ArrayList<Point>) points.clone();
         //retirer les minimums
 
-        int remove = 0;
-        while(remove < 2){
-            ArrayList<Point> toRemove = new ArrayList<Point>() ;
-            for (Point point : pointsLeft) {
-                List<Point> linked = findAllLinkedPoints(point, pointsLeft);
-                int nbrlinks = linked.size();
-                if(nbrlinks == 0){
-                    result.add(point) ;
-                    toRemove.add(point);
 
-                }
-            }
-            for (Point point : toRemove) {
-                pointsLeft.remove(point);
-            }
-            remove++ ;
-        }
         ArrayList<Point> toRemove = new ArrayList<Point>() ;
         for (Point point : pointsLeft) {
             List<Point> linked = findAllLinkedPoints(point, pointsLeft);
             int nbrlinks = linked.size();
-            if(nbrlinks == 1){
-                if(!result.contains(linked.get(0))) {
-                    result.add(linked.get(0));
-                    toRemove.add(point);
-                    toRemove.add(linked.get(0));
-                }
+            if(nbrlinks == 0){
+                result.add(point) ;
+                toRemove.add(point);
+
             }
         }
         for (Point point : toRemove) {
             pointsLeft.remove(point);
         }
-        //glouton
 
+        toRemove.clear();
+
+
+        int remove = 0;
+        while(remove < 1){
+            toRemove = new ArrayList<Point>();
+            for (Point point : pointsLeft) {
+                List<Point> linked = findAllLinkedPoints(point, pointsLeft);
+                int nbrlinks = linked.size();
+                if (nbrlinks == 1) {
+                    if (!result.contains(linked.get(0))) {
+                        result.add(linked.get(0));
+                        toRemove.add(point);
+                        toRemove.add(linked.get(0));
+                    }
+                }
+
+            }
+            for (Point point : toRemove) {
+                pointsLeft.remove(point);
+            }
+            toRemove.clear();
+            remove++;
+        }
+        int sizeBeforeGluton = result.size() ;
+        //glouton
         List<Point> mostLinkedPointList = null;
         ArrayList<Point> currentResult = new ArrayList<Point>();
-        while (pointsLeft.size() > 0 || result.size() < 75) {
+        while (pointsLeft.size() > 0 && currentResult.size() < 0) {
             //System.out.println("----------------" + pointsLeft.size());
             //trouver le point avec le plus gourmand dans ceux restants
             Point mostLinkedPoint = null;
@@ -91,21 +97,18 @@ public class DefaultTeam {
             }
         }
 
-        //comparaison
-        //System.out.println(currentResult) ;
-        if (gloutonResult == null || gloutonResult.size() > currentResult.size()){
-            gloutonResult = currentResult ;
-        }
-
-        for(Point point : gloutonResult){
+        for(Point point : currentResult){
             result.add(point);
         }
-
+        //currentResult.clear();
         //reccursive
+        int resultBeforeRecursive = result.size() ;
         ArrayList<Point> resultRecursive = recursiveDominatingSet(pointsLeft) ;
         for(Point point : resultRecursive){
             result.add(point);
         }
+        System.out.println("size before gluton"+sizeBeforeGluton) ;
+        System.out.println("size before Recursive"+resultBeforeRecursive) ;
         return result;
     }
 
@@ -115,15 +118,44 @@ public class DefaultTeam {
         }
         System.out.println("-debut--- recurence numero :" + recNumber) ;
         recNumber++ ;
-
-        //
-       /* if(recNumber < 100) {
-            System.out.println("taille courante :" + allPoints.size());
-        }*/
-
-
-
         ArrayList<Point> result = new ArrayList<Point>() ;
+        if(allPoints.size() <500){
+            ArrayList<Point> pointsLeft = (ArrayList<Point>)allPoints.clone();
+            //glouton
+            List<Point> mostLinkedPointList = null;
+            ArrayList<Point> currentResult = new ArrayList<Point>();
+            while (pointsLeft.size() > 0) {
+                //System.out.println("----------------" + pointsLeft.size());
+                //trouver le point avec le plus gourmand dans ceux restants
+                Point mostLinkedPoint = null;
+                List<Point> linked = null;
+                int mostLinkedPointNbr = -1;
+                for (Point point : pointsLeft) {
+                    linked = findAllLinkedPoints(point, pointsLeft);
+                    int nbrlinks = linked.size();
+                    if (
+                            (nbrlinks > mostLinkedPointNbr)
+                        /*||
+                        (nbrlinks == mostLinkedPointNbr && new Random().nextInt(max) < random)*/
+                            ) {
+                        mostLinkedPoint = point;
+                        mostLinkedPointNbr = nbrlinks;
+                        mostLinkedPointList = linked;
+                    }
+                }
+                //retirer les points de la liste
+                pointsLeft.remove(mostLinkedPoint);
+                currentResult.add(mostLinkedPoint);
+                for (Point point : mostLinkedPointList) {
+                    pointsLeft.remove(point);
+                }
+            }
+            for(Point point : currentResult){
+                result.add(point);
+            }
+            return result ;
+        }
+
         HashMap<Point, ArrayList> possibleResult = new HashMap<Point, ArrayList>() ;
 
         List<Point> linked = null ;
@@ -159,14 +191,11 @@ public class DefaultTeam {
         for(HashMap.Entry<Point, ArrayList> entry : possibleResult.entrySet()) {
             ArrayList currentResult = entry.getValue();
             Point point = entry.getKey() ;
-            //System.out.println(currentResult);
             if (result.size() == 0 || result.size() > currentResult.size()) {
                 result = currentResult;
-                //System.out.println(result);
                 result.add(point) ;
             }
         }
-        //System.out.println("---fin--- recurence numero :" + recNumber) ;
         return result;
     }
 
