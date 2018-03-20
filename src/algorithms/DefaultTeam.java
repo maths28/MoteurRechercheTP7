@@ -125,7 +125,7 @@ public class DefaultTeam {
         System.out.println("-debut--- recurence numero :" + recNumber) ;
         recNumber++ ;
         ArrayList<Point> result = new ArrayList<Point>() ;
-        if(allPoints.size() <400){
+        if(allPoints.size() <250){
             ArrayList<Point> pointsLeft = (ArrayList<Point>)allPoints.clone();
             //glouton
             List<Point> mostLinkedPointList = null;
