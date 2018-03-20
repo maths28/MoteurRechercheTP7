@@ -54,8 +54,14 @@ public class DefaultTeam {
                 if (nbrlinks == 1) {
                     if (!result.contains(linked.get(0))) {
                         result.add(linked.get(0));
-                        toRemove.add(point);
+                        //toRemove.add(point);
                         toRemove.add(linked.get(0));
+                        List<Point> other = findAllLinkedPoints(linked.get(0), pointsLeft);
+                        for(Point point2 : other){
+                            toRemove.add(point2);
+                        }
+
+
                     }
                 }
 
